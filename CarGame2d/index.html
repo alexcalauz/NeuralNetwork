@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>2d car game</title>
+    <link rel="stylesheet" href="car.css">
+  </head>
+  <body>
+    <div id="start"></div>
+    <div class="scene"></div>
+
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svgroot" width="2000" height="3000">
+      <path id="circuit" startlineparams="200,100" fill="#aaa" d="M200,0L380,0L400,20L350,340L340,350L20,400L0,380L0,20L20,0zM200,100L110,100L100,110L100,290L110,300L290,300L300,290L300,110L290,100z"/>
+      <path id="distance" fill="transparent" d="M200,50L350,50L325,325L50,350L50,50z"/>
+      <g id="collision"></g>
+      <g id="lines"></g>
+    </svg>
+    <!-- <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="svgroot" width="800" height="600">
+      <path id="circuit" startlineparams="280,80" fill="#aaa" d="M700,419L700,570L670,600L480,600L460,580L460,560L440,540L410,540L390,561L390,581L371,600L51,600L20,550L130,280L130,40L169,0L379,0L400,20L400,70L411,80L480,80L600,200L600,270L610,280L781,280L800,300L800,391L780,410L710,410L700,419zM620,521L620,380L651,350L740,350L740,340L542,340L520,319L520,230L450,160L350,160L320,129L320,90L311,80L231,80L210,99L210,300L129,499L140,520L300,520L310,510L310,490L350,450L500,450L540,489L540,521L551,530L611,530L620,521z"/>
+      <path id="distance" fill="transparent" d="M300,40L339,40L360,61L360,100L381,120L464,120L560,216L560,294L577,310L760,310L770,320L770,370L759,380L681,380L660,401L660,540L629,566L508,566L500,555L500,530L467,502L374,502L350,520L350,546L330,560L94,560L75,523L170,290L170,71L198,40z"/>
+      <g id="lines"></g>
+      <g id="collision"></g>
+    </svg> -->
+
+    <div class="ui">
+      <div class="wheel"></div>
+      <div class="dials">
+        <div class="tachometer">
+            <div></div>
+          </div>
+          <div class="speedometer">
+            <div></div>
+          </div>
+      </div>
+      <div class="gear">
+        0
+      </div>
+      <div class="pedal break">
+      </div>
+      <div class="pedal gas">
+      </div>
+    </div>
+
+    <button class="button--train" onclick="start()">train</button>
+    <button class="button--train" onclick="train()">train</button>
+
+    <script src="../Helpers/matrix.js"></script>
+    <script src="../Helpers/prototypes.js"></script>
+    <script src="../NeuralNetwork/Activation.js"></script>
+    <script src="../NeuralNetwork/NeuralNetwork.js"></script>
+    <script src="car.js"></script>
+    <script>
+
+      let games = [];
+
+      //this is how you play without AI. Have fun!!
+      const game = new CarGame2D(null, true, false);
+
+      function start() {
+        //create 300 games with a random brain
+        for(let i = 0; i < 300; i++) {
+          games.push(new CarGame2D(null, false));
+        }
+      }
+
+      function sort() {
+        games.sort((a, b) => {
+          return a.score > b.score ? -1 : 1;
+        })
+      }
+
+      function train() {
+        //stop all games;
+        for(let i in games) {
+          games[i].stop();
+        }
+        //sort by score so that the best players are at the top of the array;
+        sort();
+
+        const newGames = [];
+
+        for(let i = 0; i < 150; i++) {
+          if(i < 5) {
+            //Keep the best players from the prev generation
+            newGames.push(new CarGame2D(games[i].brain));
+          } else {
+            //the rest of 145 are generated from those 5
+
+            //randomly select 2 of the best 5 players
+            const firstParent = games[Math.randomIntBetween(0, 5)].brain;
+            const secondParent = games[Math.randomIntBetween(0, 5)].brain;
+
+            //crossover creates a child by mixing the "genes" of the 2 parents
+            let child = firstParent.crossover(secondParent);
+
+            //mutate 3 out of 100 weights & biases (add a number in the -1 / 1 range)
+            child.mutate(0.03);
+
+            //spawn a new game with the new brain and push it to the games list
+            newGames.push(new CarGame2D(child));
+
+          }
+        }
+        games = newGames;
+
+      }
+
+      function save() {
+        const saveGames = [];
+        sort();
+        for(let i in games) {
+          saveGames.push({
+            weights: games[i].brain.weights.map(layer => layer.map(weight => weight.format(2))),
+            biases: games[i].brain.biases.map(layer => layer.map(bias => bias.format(2))),
+            brainModel: games[i].brain.model,
+          });
+        }
+        console.log(JSON.stringify(saveGames));
+      }
+
+      function load(string) {
+        const data = JSON.parse(string);
+        games = [];
+
+        for(let i in data) {
+          const brain = new NeuralNetwork(data[i].brainModel, data[i].weights, data[i].biases);
+          games.push(new CarGame2D(brain));
+        }
+      }
+
+    </script>
+  </body>
+</html>

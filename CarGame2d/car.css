@@ -1,0 +1,147 @@
+body {
+  overflow: hidden;
+  background-color: #eee;
+}
+
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.car {
+  position: absolute;
+  top: -8px;
+  left: -4px;
+  width: 8px;
+  height: 16px;
+  border-radius: 2px;
+  background-color: #0066ff;
+  will-change: transform;
+  z-index: 3;
+}
+
+.car.yellow {
+  background: yellow;
+}
+
+body {
+  margin: 0;
+}
+
+.wheel {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 10px solid grey;
+  top: 100px;
+  border-radius: 50%;
+  right: 100px;
+}
+
+.wheel::before {
+  content: '';
+  bottom: -5px;
+  position: absolute;
+  background: grey;
+  width: 10px;
+  height: 50%;
+  left: calc(50% - 5px);
+}
+
+.wheel::after {
+  content: '';
+  left: -5px;
+  right: -5px;
+  position: absolute;
+  background: grey;
+  height: 10px;
+  top: calc(50% - 5px);
+}
+
+#start {
+  position: absolute;
+  top:0;
+  z-index: 2;
+  background:white;
+  width: 2px;
+}
+
+.dials {
+  width: 118px;
+  height: 27px;
+  overflow: hidden;
+  top: 70px;
+  right: 100px;
+  position: absolute;
+}
+
+.speedometer,
+.tachometer {
+  width: 50px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid grey;
+  height: 50px;
+  float: left;
+  position: relative;
+}
+
+.tachometer {
+  margin-right: 10px;
+}
+
+.speedometer div,
+.tachometer div {
+  background: red;
+  height: 10px;
+  width: 0px;
+  width: 2px;
+  height: 20px;
+  position: absolute;
+  left: 50%;
+  margin-left: -1px;
+  top: 4px;
+  transform-origin: 1px 100%;
+  transition: transform 100ms;
+  transform: rotate(-90deg);
+}
+
+.pedal {
+  width: 30px;
+  background: #888;
+  position: absolute;
+  top: 250px;
+  height: 70px;
+  right: 115px;
+}
+
+.pedal.break {
+  right: 155px;
+  width: 50px;
+  height: 30px;
+}
+
+.pedal.active {
+  background: red;
+}
+
+.gear {
+  font-size: 24px;
+  top: 50px;
+  right: 152px;
+  position: absolute;
+}
+
+.ui {
+  display: none;
+}
+
+.button--train {
+  top: 20px;
+  right: 20px;
+  position: absolute;
+}
